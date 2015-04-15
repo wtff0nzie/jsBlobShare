@@ -5,7 +5,13 @@
 
     // Transport
     var XHR = function (blobName, verb, data, callback) {
-        var X = new XMLHttpRequest();
+        var X = new XMLHttpRequest(),
+            s,
+            r;
+
+        if (!callback) {
+            return win.blobShare;
+        }
 
         X.open(verb, store + blobName, true);
 
@@ -13,7 +19,19 @@
             X.setRequestHeader('Content-Type', 'application/json');
         }
 
-        X.onload = callback || null;
+        X.onload = function () {
+            if (X.readyState === 4) {
+                r = X.responseText;
+                s = X.status;
+
+                if (s < 200 || s > 299) {
+                    return callback(true, r, X);
+                }
+
+                return callback(null, r, X);
+            }
+        };
+
         X.send(data);
     };
 
