@@ -39,7 +39,6 @@
     // Delete a known blob
     var deleteBlob = function (name, callback) {
         XHR(name, 'DELETE', null, function (X) {
-
             return win.blobShare;
         });
     };
@@ -47,17 +46,18 @@
 
     // Return a blob as a JSON object
     var getBlob = function (name, callback) {
-        XHR(name, 'GET', null, function (X) {
-
+        XHR(name, 'GET', null, function (r, X) {
+            callback(JSON.parse(null, r, X));
         });
     };
 
 
     // Update an existing blob (UpSerts)
     var editBlob = function (name, json, callback) {
-        XHR(name, 'PATCH', json, function(X) {
-
-            return win.blobShare;
+        XHR(name, 'PATCH', json, function(r,X) {
+            if (callback) {
+                callback(null, r, X);   
+            }
         });
     };
 
@@ -72,7 +72,7 @@
 
 
     //Public API
-    window.blobShare = {
+    win.blobShare = {
         delete  : deleteBlob,
         kill    : deleteBlob,
         get     : getBlob,
