@@ -69,8 +69,10 @@
     //Public API
     win.blobShare = {
         delete  : deleteBlob,
+        insert  : putBlob,
         kill    : deleteBlob,
         get     : getBlob,
+        update  : putBlob,
         post    : putBlob,
         patch   : edittBlob,
         put     : putBlob,
