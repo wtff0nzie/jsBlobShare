@@ -1,13 +1,12 @@
-;(function (undefined) {
-    var store = 'http://blobshare.rocks/',
-        win = window;
+;(function (win, undefined) {
+    var store = 'http://blobshare.rocks/';
 
 
     // Transport
     var XHR = function (blobName, verb, data, callback) {
         var X = new XMLHttpRequest(),
-            s,
-            r;
+            response,
+            status;
 
         if (!callback) {
             return win.blobShare;
@@ -21,8 +20,8 @@
 
         X.onload = function () {
             if (X.readyState === 4) {
-                r = X.responseText;
-                s = X.status;
+                response = X.responseText;
+                status = X.status;
 
                 if (s < 200 || s > 299) {
                     return callback(true, r, X);
@@ -38,36 +37,32 @@
 
     // Delete a known blob
     var deleteBlob = function (name, callback) {
-        XHR(name, 'DELETE', null, function (X) {
-            return win.blobShare;
-        });
+        XHR(name, 'DELETE', null, callback);
+        return win.blobShare;
     };
 
 
     // Return a blob as a JSON object
     var getBlob = function (name, callback) {
-        XHR(name, 'GET', null, function (r, X) {
+        XHR(name, 'GET', null, function (err, r, X) {
             callback(JSON.parse(null, r, X));
         });
+        
+        return win.blobShare;
     };
 
 
     // Update an existing blob (UpSerts)
     var editBlob = function (name, json, callback) {
-        XHR(name, 'PATCH', json, function(r,X) {
-            if (callback) {
-                callback(null, r, X);   
-            }
-        });
+        XHR(name, 'PATCH', json, callback);
+        return win.blobShare;
     };
 
 
     // Add a new blob
     var putBlob = function (name, json, callback) {
-        XHR(name, 'PUT', json, function (X) {
-
-            return win.blobShare;
-        });
+        XHR(name, 'PUT', json, callback);
+        return win.blobShare;
     };
 
 
@@ -81,4 +76,4 @@
         put     : putBlob,
         set     : putBlob
     };
-}());
+}(window));
