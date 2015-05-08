@@ -5,7 +5,7 @@ Client-side interface for http://blobShare.rocks.
 * Simple interface
 * Support callbacks and promises
 * Chainable
-* Works well with others
+* Works well with others (AMD, require)
 
 ## Usage
     <script src="blobShare.js"></script>
@@ -15,16 +15,16 @@ Client-side interface for http://blobShare.rocks.
         };
 
         blobShare
-                .get('test-obj', function (err, data, XHRObject) {
-                    if (err) {
-                        alert('An error occurred: ' + data);
-                        return;
-                    }
+            .get('test-obj', function (err, data, XHRObject) {
+                if (err) {
+                    alert('An error occurred: ' + data);
+                    return;
+                }
 
-                    console.log(data);
-                })
-                .update('text-obj', obj)
-                .delete('text-obj');
+                console.log(data);
+            })
+            .update('text-obj', obj)
+            .delete('text-obj');
     </script>
 
 ## Methods

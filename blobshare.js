@@ -2,8 +2,6 @@
     var store = 'http://blobshare.rocks/',
         blobShare = {};
 
-    store = 'http://localhost:8081/';
-
 
     // Check if useragent supports us
     if (!win.Promise || !win.JSON) {
