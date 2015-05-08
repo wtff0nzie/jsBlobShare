@@ -1,8 +1,14 @@
-;(function (win, exportName, undefined) {
+!(function (win, exportName, undefined) {
     'use strict';
 
     var store = 'http://blobshare.rocks/',
         blobShare = {};
+
+
+    // Check if useragent supports us
+    if (!win.Promise || !win.JSON) {
+        return;
+    }
 
 
     // Transport
