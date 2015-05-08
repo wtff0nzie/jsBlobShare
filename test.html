@@ -4,94 +4,60 @@
     <title>BlobShare JS widget test</title>
 </head>
 <body>
-<!--<script>
-    // Native promises
-    function getGithubUserInfo(username) {
-        return new Promise(function (resolve, reject) {
-            var url = 'http://localhost:8081/' + username,
-                req = new XMLHttpRequest();
-
-            req.open('GET', url);
-
-            req.onload = function () {
-                if (req.status == 200) {
-                    resolve(req.response);
-                } else {
-                    reject(req.statusText);
-                }
-            };
-
-            req.onerror = function () {
-                reject('Network Error');
-            };
-
-            req.send();
-        });
-    }
-
-
-    getGithubUserInfo('test-blob').then(function (response) {
-                console.log('Yay! ' + response);
-            }, function (error) {
-                console.log('NOES! ' + error);
-            });
-
-</script>-->
 <script src="blobshare.js"></script>
 <script>
-    // Get a blob ----------------------------------
+    // Get a blob
     blobShare.get('mycustomnamespacejsblobtest', function (err, data) {
         console.log(data);
     });
 
 
-    // Create a new blob ---------------------------
+    // Create a new blob
     var newBlob = {
         born    : Date.now(),
         hello   : 'World'
     };
     blobShare.set('abrandnewblob', newBlob);
 
-
-    // Delete a blob -------------------------------
+    // Delete a blob
     blobShare.del('mycustomnamespacejsblobtest');
 
 
-    // Callbacks with chaining ---------------------
+
+    // Callbacks with chaining
     blobShare
-        .get('mycustomnamespacejsblobtest', function (err, data, XHR) {         // Get a named JSON blob
-            if (err) {
-                console.log('Opps, error!');
-                return;
-            }
+            .get('mycustomnamespacejsblobtest', function (err, data, XHR) {         // Get a named JSON blob
+                if (err) {
+                    console.log('Opps, error!');
+                    return;
+                }
 
-            console.log(typeof data);
-            console.log(data);
-        })
-        .set('mycustomnamespacejsblobtest', {test:'thing'}, function () {})     // Create a new JSON blob
-        .del('otherblobtest', function () {});                                  // Delete an existing JSON blob
+                console.log(typeof data);
+                console.log(data);
+            })
+            .set('mycustomnamespacejsblobtest', {test:'thing'}, function () {})     // Create a new JSON blob
+            .del('otherblobtest', function () {});                                  // Delete an existing JSON blob
 
-
-    // Promises ------------------------------------
+    // Promises
     var eventually = blobShare.get('mycustomnamespacejsblobtest'),
-        failure = blobShare.get('doesnotexist');
+            failure = blobShare.get('doesnotexist');
 
     eventually.then(
-        function (data, XHR) {
-            console.log('Yay! This should have happened!!! ' + JSON.stringify(data));
-        },
-        function (err, XHR) {
-            console.error(error);
-        });
+            function (data, XHR) {
+                console.log('Yay! This should have happened!!! ' + JSON.stringify(data));
+            },
+            function (err, XHR) {
+                console.error(err);
+            });
 
 
     failure.then(
-        function (data, XHR) {
+            function (data, XHR) {
 
-        },
-        function (err, XHR) {
-            console.log('Failure successfully failed ' + err);
-        });
+            },
+            function (err, XHR) {
+                console.log('Failure successfully failed ' + err);
+            });
 </script>
 </body>
 </html>

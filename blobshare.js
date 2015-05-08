@@ -1,4 +1,6 @@
 ;(function (win, exportName, undefined) {
+    'use strict';
+
     var store = 'http://blobshare.rocks/',
         blobShare = {};
 
@@ -31,8 +33,8 @@
 
             X.onreadystatechange = function () {
                 if (X.readyState === 4) {
-                    response = X.responseText;
-                    status = X.status;
+                    response = X.responseText || '';
+                    status = X.status || 0;
 
                     if (verb === 'GET') {
                         try {
@@ -48,9 +50,9 @@
                     }
 
                     if (promised) {
-                        return (err) ? reject(response, X) : resolve(response, X);
+                        (err) ? reject(response, X) : resolve(response, X);
                     } else {
-                        return (err) ? reject(err, response, X) : resolve(err, response, X);
+                        resolve(err, response, X);
                     }
                 }
             };
@@ -64,11 +66,7 @@
             return new Promise(transport);
         }
 
-        if (!callback) {
-            callback = function () {};
-        }
-
-        transport(callback, callback);
+        transport(callback || function () {});
         return blobShare;
     };
 
