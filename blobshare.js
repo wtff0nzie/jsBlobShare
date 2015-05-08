@@ -1,81 +1,141 @@
-;(function (win, undefined) {
-    var store = 'http://blobshare.rocks/';
+;(function (win, exportName, undefined) {
+    var store = 'http://blobshare.rocks/',
+        blobShare = {};
+
+    store = 'http://localhost:8081/';
+
+
+    // Check if useragent supports us
+    if (!win.Promise || !win.JSON) {
+        return;
+    }
 
 
     // Transport
     var XHR = function (blobName, verb, data, callback) {
         var X = new XMLHttpRequest(),
+            promised = false,
+            err = null,
             response,
             status;
 
-        if (!callback) {
-            return win.blobShare;
-        }
 
-        X.open(verb, store + blobName, true);
+        var transport = function (resolve, reject) {
+            X.open(verb, store + blobName, true);
 
-        if (data) {
-            X.setRequestHeader('Content-Type', 'application/json');
-        }
+            if (data) {
+                X.setRequestHeader('Content-Type', 'application/json');
 
-        X.onload = function () {
-            if (X.readyState === 4) {
+                if (typeof data !== 'string') {
+                    data = JSON.stringify(data);
+                }
+            }
+
+            X.onload = function () {
                 response = X.responseText;
                 status = X.status;
 
-                if (s < 200 || s > 299) {
-                    return callback(true, r, X);
+                if (verb === 'GET') {
+                    try {
+                        response = JSON.parse(response);
+                    } catch (e) {
+                        response = e;
+                        err = true
+                    }
                 }
 
-                return callback(null, r, X);
-            }
+                if (status < 200 || status > 299) {
+                    err = true;
+                    if (promised) {
+                        return reject(response, X);
+                    } else {
+                        return reject(err, response, X);
+                    }
+                }
+
+                if (promised) {
+                    resolve(response, X);
+                } else {
+                    resolve(err, response, X);
+                }
+            };
+
+            X.onerror = function () {
+                if (promised) {
+                    reject('Network error', X);
+                } else {
+                    reject(true, 'Network error', X);
+                }
+            };
+
+            X.send(data);
         };
 
-        X.send(data);
+
+        if (!callback && win.Promise) {
+            console.log('Using a promise');
+            promised = true;
+            return new Promise(transport);
+        }
+
+        if (!callback) {
+            callback = function () {};
+        }
+
+        console.log('Using callback');
+        transport(callback, callback);
+
+        return blobShare;
     };
 
 
     // Delete a known blob
     var deleteBlob = function (name, callback) {
-        XHR(name, 'DELETE', null, callback);
-        return win.blobShare;
+        return XHR(name, 'DELETE', null, callback);
     };
 
 
     // Return a blob as a JSON object
     var getBlob = function (name, callback) {
-        XHR(name, 'GET', null, function (err, r, X) {
-            callback(JSON.parse(null, r, X));
-        });
-        
-        return win.blobShare;
+        return XHR(name, 'GET', null, callback);
     };
 
 
     // Update an existing blob (UpSerts)
     var editBlob = function (name, json, callback) {
-        XHR(name, 'PATCH', json, callback);
-        return win.blobShare;
+        return XHR(name, 'PATCH', json, callback);
     };
 
 
     // Add a new blob
     var putBlob = function (name, json, callback) {
-        XHR(name, 'PUT', json, callback);
-        return win.blobShare;
+        return XHR(name, 'PUT', json, callback);
     };
 
 
-    //Public API
-    win.blobShare = {
+    // Build public API
+    blobShare = {
+        del     : deleteBlob,
         delete  : deleteBlob,
         insert  : putBlob,
         kill    : deleteBlob,
         get     : getBlob,
         update  : putBlob,
         post    : putBlob,
-        patch   : edittBlob,
+        patch   : editBlob,
         put     : putBlob,
         set     : putBlob
     };
-}(window));
+
+
+    // Share public API
+    if (typeof define == 'function' && define.amd) {
+        define(function() {
+            return blobShare;
+        });
+    } else if (typeof module != 'undefined' && module.exports) {
+        module.exports = blobShare;
+    } else {
+        win[exportName] = blobShare;
+    }
+}(window, 'blobShare'));
