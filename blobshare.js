@@ -5,19 +5,12 @@
         blobShare = {};
 
 
-    // Check if useragent supports us
-    if (!win.Promise || !win.JSON) {
-        return;
-    }
-
-
     // Transport
     var XHR = function (blobName, verb, data, callback) {
         var X = new XMLHttpRequest(),
-            promised = false,
-            err = null,
-            response,
-            status;
+            promised,
+            res,
+            err;
 
 
         var transport = function (resolve, reject) {
@@ -33,26 +26,25 @@
 
             X.onreadystatechange = function () {
                 if (X.readyState === 4) {
-                    response = X.responseText || '';
-                    status = X.status || 0;
+                    res = X.responseText || '';
 
                     if (verb === 'GET') {
                         try {
-                            response = JSON.parse(response);
+                            res = JSON.parse(res);
                         } catch (e) {
                             err = true;
-                            response = e;
+                            res = e;
                         }
                     }
 
-                    if (status < 200 || status > 399) {
+                    if (X.status < 200 || X.status > 399) {
                         err = true;
                     }
 
                     if (promised) {
-                        (err) ? reject(response, X) : resolve(response, X);
+                        (err) ? reject(res, X) : resolve(res, X);
                     } else {
-                        resolve(err, response, X);
+                        resolve(err, res, X);
                     }
                 }
             };
