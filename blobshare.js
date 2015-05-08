@@ -31,40 +31,29 @@
                 }
             }
 
-            X.onload = function () {
-                response = X.responseText;
-                status = X.status;
+            X.onreadystatechange = function () {
+                if (X.readyState === 4) {
+                    response = X.responseText;
+                    status = X.status;
 
-                if (verb === 'GET') {
-                    try {
-                        response = JSON.parse(response);
-                    } catch (e) {
-                        response = e;
-                        err = true
+                    if (verb === 'GET') {
+                        try {
+                            response = JSON.parse(response);
+                        } catch (e) {
+                            err = true;
+                            response = e;
+                        }
                     }
-                }
 
-                if (status < 200 || status > 299) {
-                    err = true;
+                    if (status < 200 || status > 399) {
+                        err = true;
+                    }
+
                     if (promised) {
-                        return reject(response, X);
+                        return (err) ? reject(response, X) : resolve(response, X);
                     } else {
-                        return reject(err, response, X);
+                        return (err) ? reject(err, response, X) : resolve(err, response, X);
                     }
-                }
-
-                if (promised) {
-                    resolve(response, X);
-                } else {
-                    resolve(err, response, X);
-                }
-            };
-
-            X.onerror = function () {
-                if (promised) {
-                    reject('Network error', X);
-                } else {
-                    reject(true, 'Network error', X);
                 }
             };
 
@@ -73,7 +62,6 @@
 
 
         if (!callback && win.Promise) {
-            console.log('Using a promise');
             promised = true;
             return new Promise(transport);
         }
@@ -82,9 +70,7 @@
             callback = function () {};
         }
 
-        console.log('Using callback');
         transport(callback, callback);
-
         return blobShare;
     };
 
